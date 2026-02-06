@@ -43,7 +43,8 @@ typedef enum {
     NINE_CHAR,
     COLON_CHAR, 
     DASH_CHAR,
-    ALARM_CHAR,
+    ALARM_CHAR_SET,
+    ALARM_CHAR_CLR,
     NUM_CHARACTERS // should always be last 
 } character_t;
 

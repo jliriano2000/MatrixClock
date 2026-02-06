@@ -60,9 +60,10 @@ uint8_t ledMatrix[MATRIX_WIDTH][MATRIX_HEIGHT] = {0};
 static const coordinate_t charPositions[NUM_POSITIONS] = {
     [POS1] = {.row = 0, .col = 0},   // POS1
     [POS2] = {.row = 4, .col = 0},   // POS2
-    [COLON] = {.row = 8, .col = 0},   // COLON
+    [COLON] = {.row = 8, .col = 0},  // COLON
     [POS3] = {.row = 11, .col = 0},  // POS3
-    [POS4] = {.row = 15, .col = 0}   // POS4
+    [POS4] = {.row = 15, .col = 0},  // POS4
+    [ALARM_DOT] = {.row = 0, .col = MATRIX_WIDTH - 1} // ALARM_DOT Position (top-right corner)
 };
 
 static const uint8_t colonSprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
@@ -169,6 +170,9 @@ static void setCharAtPosition(character_t character, char_pos_t position)
     coordinate_t target = {0}; 
     uint8_t const (*spritePtr)[SPRITE_HEIGHT][SPRITE_WIDTH] = NULL; 
     
+    // Copy over coordinates for the position
+    memcpy(&target, &charPositions[position], sizeof(coordinate_t));
+
     // which sprite to use
     switch(character) {
         case ZERO_CHAR:
@@ -190,14 +194,19 @@ static void setCharAtPosition(character_t character, char_pos_t position)
         case DASH_CHAR:
             spritePtr = &dashSprite;
             break;
+        case ALARM_CHAR_SET:
+            ledMatrix[target.row][target.col] = 1; // Set the alarm dot (top-right corner)
+            return; // No need to copy a sprite for the alarm dot, so we can return early
+            break; 
+        case ALARM_CHAR_CLR:
+            ledMatrix[target.row][target.col] = 0; // Clear the alarm dot (top-right corner)
+            return; // No need to copy a sprite for the alarm dot, so we can return early
+            break;
         default:
             // Invalid character, should not happen due to prior checks
             // but will handle here. 
             return;
     }
-
-    // Copy over coordinates for the position
-    memcpy(&target, &charPositions[position], sizeof(coordinate_t));
 
     // Copy over the sprite
     for(uint8_t i = 0; i < SPRITE_HEIGHT; i++) {
@@ -249,8 +258,16 @@ led_matrix_err_t setCharacterAtPosition(character_t character, char_pos_t positi
             break;
         }
 
+        // Only alarm dot can be set at ALARM_DOT position
+        if (position == ALARM_DOT && (character != ALARM_CHAR_CLR && character != ALARM_CHAR_SET) )
+        {
+            printf("Invalid argument: Only alarm dot can be set at ALARM_DOT position. character=%d, position=%d\n", character, position);
+            status = LED_ARG_ERROR;
+            break;
+        }
+
         // Update the matrix with the character sprite at the specified position
-        setCharacterAtPosition(character, position);
+        setCharAtPosition(character, position);
 
     } while (0);
     return status;
