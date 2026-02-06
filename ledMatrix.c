@@ -55,14 +55,14 @@ static void clearLastLines(int n);
 /* Definitions ---------------------------------------------------------------*/
 // Main LED Matrix representation. This frame may be sent as is to the hardware 
 // driving the LED matrix.
-uint8_t ledMatrix[MATRIX_WIDTH][MATRIX_HEIGHT] = {0};
+uint8_t ledMatrix[MATRIX_HEIGHT][MATRIX_WIDTH] = {0};
 
 static const coordinate_t charPositions[NUM_POSITIONS] = {
-    [POS1] = {.row = 0, .col = 0},   // POS1
-    [POS2] = {.row = 4, .col = 0},   // POS2
-    [COLON] = {.row = 8, .col = 0},  // COLON
-    [POS3] = {.row = 11, .col = 0},  // POS3
-    [POS4] = {.row = 15, .col = 0},  // POS4
+    [POS1] = {.row = 1, .col = 1},   // POS1
+    [POS2] = {.row = 1, .col = 5},   // POS2
+    [COLON] = {.row = 1, .col = 8},  // COLON
+    [POS3] = {.row = 1, .col = 11},  // POS3
+    [POS4] = {.row = 1, .col = 15},  // POS4
     [ALARM_DOT] = {.row = 0, .col = MATRIX_WIDTH - 1} // ALARM_DOT Position (top-right corner)
 };
 
@@ -209,6 +209,7 @@ static void setCharAtPosition(character_t character, char_pos_t position)
     }
 
     // Copy over the sprite
+    printf("Setting character %d at position %d (row=%d, col=%d)\n", character, position, target.row, target.col);
     for(uint8_t i = 0; i < SPRITE_HEIGHT; i++) {
         for(uint8_t j = 0; j < SPRITE_WIDTH; j++) {
             ledMatrix[target.row + i][target.col + j] = (*spritePtr)[i][j];
@@ -307,9 +308,11 @@ void printMatrix(void) {
     }
 
     // Print the matrix
-    for (int i = 0; i < MATRIX_HEIGHT; ++i) {
-        for (int j = 0; j < MATRIX_WIDTH; ++j) {
-            printf("%c ", ledMatrix[i][j] != 0 ? '.' : ' '); // Print '.' for lit LEDs and space for unlit LEDs
+    for (uint8_t i = 0; i < MATRIX_HEIGHT; i++) {
+        for (uint8_t j = 0; j < MATRIX_WIDTH; j++) {
+            // Green filled circle for 1, gray hollow circle for 0. 
+            // I found this pleaseing though UI/UX folks may not :). 
+            printf("%s ", ledMatrix[i][j] != 0 ? "\x1b[32m\u25CF\x1b[0m" : "\033[90m\xe2\x97\xa6\033[0m"); //
         }
         printf("\r\n");
     }

@@ -35,6 +35,16 @@
 int main(void) {
     // Initialize the LED matrix
     clearMatrix();
+
+    // Set the characters at the specified positions
+    setCharacterAtPosition(ONE_CHAR, POS1);
+    setCharacterAtPosition(ONE_CHAR, POS2);
+    setCharacterAtPosition(COLON_CHAR, COLON);
+    setCharacterAtPosition(ONE_CHAR, POS3);
+    setCharacterAtPosition(ONE_CHAR, POS4);
+    printMatrix();
+
+    sleep(2);
     return 0;
 }
 

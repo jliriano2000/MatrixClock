@@ -86,6 +86,12 @@ led_matrix_err_t getMatrix(uint8_t matrixOut[MATRIX_WIDTH][MATRIX_HEIGHT]);
  * @return led_matrix_err_t Status of the operation.
  */
 led_matrix_err_t sendMatrix(void); 
+
+/**
+ * @brief Prints the current LED matrix to the terminal. This is a utility function for testing and visualization purposes.
+ * 
+ */
+void printMatrix(void);
 #endif /* __LEDMATRIX_H */
 
 
