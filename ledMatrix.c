@@ -11,7 +11,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ledMatrix.h"
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 
 // Could include the hardware-specific LED matrix driver headers here
@@ -234,6 +233,16 @@ led_matrix_err_t setCharacterAtPosition(character_t character, char_pos_t positi
 
 void clearMatrix(void) {
     memset(ledMatrix, 0, sizeof(ledMatrix));
+}
+
+led_matrix_err_t getMatrix(uint8_t matrixOut[MATRIX_WIDTH][MATRIX_HEIGHT]) {
+
+    // Check for NULL pointer
+    if(matrixOut == NULL) {
+        return LED_ARG_ERROR;
+    }
+    memcpy(matrixOut, ledMatrix, sizeof(ledMatrix));
+    return LED_OK;
 }
 
 led_matrix_err_t sendMatrix(void) {

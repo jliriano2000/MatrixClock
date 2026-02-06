@@ -8,6 +8,7 @@
 #ifndef __LEDMATRIX_H
 #define __LEDMATRIX_H
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
 
 /* Exported constants --------------------------------------------------------*/
 #define MATRIX_WIDTH 19
@@ -67,6 +68,14 @@ void clearMatrix(void);
  * @param position 
  */
 led_matrix_err_t setCharacterAtPosition(character_t character, char_pos_t position);
+
+/**
+ * @brief Get the current LED matrix frame.
+ * 
+ * @param matrixOut - Output parameter to hold the current LED matrix frame. Must be a 2D array of size MATRIX_WIDTH x MATRIX_HEIGHT. 
+ * @return led_matrix_err_t - Status of the operation.
+ */
+led_matrix_err_t getMatrix(uint8_t matrixOut[MATRIX_WIDTH][MATRIX_HEIGHT]); 
 
 /**
  * @brief Sends the current ledMatrix frame to the LED matrix hardware.
