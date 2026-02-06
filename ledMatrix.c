@@ -12,6 +12,8 @@
 #include "ledMatrix.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+
 
 // Could include the hardware-specific LED matrix driver headers here
 // to send the ledMatrix frame to the actual hardware.
@@ -44,7 +46,12 @@ typedef struct {
  */
 static void setCharAtPosition(character_t character, char_pos_t position);
 
-
+/**
+ * @brief Used in display of matrix in terminal. Clears the last n lines printed to the terminal.
+ * 
+ * @param n - number of lines to clear
+ */
+static void clearLastLines(int n); 
 /* Definitions ---------------------------------------------------------------*/
 // Main LED Matrix representation. This frame may be sent as is to the hardware 
 // driving the LED matrix.
@@ -201,6 +208,24 @@ static void setCharAtPosition(character_t character, char_pos_t position)
     return; 
 }
 
+static void clearLastLines(int n) 
+{
+    if (n < 1) return;
+
+    // Move cursor up N lines, clear the line, move cursor to the start of the line
+    for (int i = 0; i < n; ++i) {
+        // Move cursor up one line: \033[1A or \x1b[1A
+        printf("\x1b[1A");
+        // Clear the entire current line: \033[2K or \x1b[2K
+        printf("\x1b[2K");
+    }
+    // Optional: Move the cursor to the beginning of the line (left margin)
+    printf("\r");
+
+    // Flush stdout to ensure the commands are sent to the terminal immediately
+    fflush(stdout);
+}
+
 led_matrix_err_t setCharacterAtPosition(character_t character, char_pos_t position)
 {
     led_matrix_err_t status = LED_OK;
@@ -251,4 +276,24 @@ led_matrix_err_t sendMatrix(void) {
     // to send the current ledMatrix frame to the actual LED matrix hardware.
     // I would update this function to return error codes based on the hardware driver feedback.
     return status; 
+}
+
+void printMatrix(void) {
+    static bool firstPrint = true;
+    
+    // Determine if this is first print
+    if (!firstPrint) {
+        // clear the last printed matrix from the terminal before printing the new one
+        clearLastLines(MATRIX_HEIGHT);
+    } else {
+        firstPrint = false;
+    }
+
+    // Print the matrix
+    for (int i = 0; i < MATRIX_HEIGHT; ++i) {
+        for (int j = 0; j < MATRIX_WIDTH; ++j) {
+            printf("%c ", ledMatrix[i][j] != 0 ? '.' : ' '); // Print '.' for lit LEDs and space for unlit LEDs
+        }
+        printf("\r\n");
+    }
 }

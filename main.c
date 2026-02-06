@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 /* Imported variables --------------------------------------------------------*/
 
 /* Imported function prototypes ----------------------------------------------*/
@@ -29,6 +30,7 @@
 /* Private functions ---------------------------------------------------------*/
 
 /* Definitions ---------------------------------------------------------------*/
+
 
 int main(void) {
     // Initialize the LED matrix
