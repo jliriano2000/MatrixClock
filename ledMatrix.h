@@ -25,7 +25,8 @@ typedef enum {
     POS2,
     COLON,
     POS3,
-    POS4, 
+    POS4,
+    ALARM_DOT,
     NUM_POSITIONS // should always be last
 } char_pos_t;
 
@@ -42,6 +43,7 @@ typedef enum {
     NINE_CHAR,
     COLON_CHAR, 
     DASH_CHAR,
+    ALARM_CHAR,
     NUM_CHARACTERS // should always be last 
 } character_t;
 
