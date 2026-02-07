@@ -68,8 +68,10 @@ void getTime(struct tm *timeInfo) {
     localtime_r(&rawTime, timeInfo);
 
     // Set to standard time format (e.g., 12-hour format)
-    timeInfo->tm_hour = timeInfo->tm_hour % 12;
-
+    if(timeInfo->tm_hour > 12) {
+        timeInfo->tm_hour -= 12;
+    }
+    
     // printf("Current time: %02d:%02d:%02d\n", timeInfo->tm_hour, timeInfo->tm_min, timeInfo->tm_sec);
 }
 

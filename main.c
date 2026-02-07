@@ -30,7 +30,8 @@
 /* Imported function prototypes ----------------------------------------------*/
 
 /* Private constants ---------------------------------------------------------*/
-
+#define ALARM_DISPLAY_DURATION_MS 2000 // Duration to display the alarm time in milliseconds
+#define DIGIT_DISPLAY_DURATION_MS 5000 // Duration to display a single digit in milliseconds
 /* Private macros ------------------------------------------------------------*/
 
 /* Private types -------------------------------------------------------------*/
@@ -46,6 +47,9 @@ typedef enum {
 static struct tm localTime;
 static bool isQuit = false; // Flag to signal the input thread to exit
 static bool isAlarmSet = false; // Flag to track if the alarm is set or not
+static bool isDisplayAlarm = false; // Flag to track whether we are currently displaying the alarm time or not.
+static bool isDisplayDigit = false; // Flag to track whether we are currently displaying a single digit for testing purposes.   
+static uint8_t buttonCnt = 0; // Counter to track the number of button presses for testing purposes.
 static display_state_t clockState = DISPLAY_TIME;
 /* Private functions ---------------------------------------------------------*/
 
@@ -72,7 +76,18 @@ static void *input_thread(void *ptr);
  */
 static void setTimeDisplay(struct tm *timeInfo); 
 
+/**
+ * @brief Display the alarm time on the LED matrix. 
+ * 
+ */
+static void setAlarmDisplay(void); 
 
+/**
+ * @brief Sets a single digit character on the LED matrix.
+ * 
+ * @param digit - The digit (0-9) to be displayed on the LED matrix. 
+ */
+static void setDigitDisplay(uint8_t digit); 
 
 /* Definitions ---------------------------------------------------------------*/
 static void processButtonPress(char button)
@@ -89,8 +104,25 @@ static void processButtonPress(char button)
         case 'A': // Upper case 'A' will set the alarm.
             isAlarmSet = true;
             break;
+        case 'd':
+        case 'D':
+            // Intentional fall-through. 
+            // Set flag to display alarm time.             
+            isDisplayAlarm = true;
+            break;
+        case 'n':
+        case 'N':
+            // Intentional fall-through. 
+            // Set flag to display a single digit for testing purposes.             
+            isDisplayDigit = true;
+            break;
         default:
             break;
+    }
+    // Count number of button presses. 
+    buttonCnt++;
+    if(buttonCnt > 10) {
+        buttonCnt = 0;
     }
 }
 
@@ -138,7 +170,7 @@ void *input_thread(void *ptr) {
 #endif
 
 static void setTimeDisplay(struct tm *timeInfo) {
-    // Set the characters at the specified positions
+    // Set the time characters at the specified positions
     setCharacterAtPosition(timeInfo->tm_hour / 10, POS1);
     setCharacterAtPosition(timeInfo->tm_hour % 10, POS2);
     setCharacterAtPosition(COLON_CHAR, COLON);
@@ -153,9 +185,74 @@ static void setTimeDisplay(struct tm *timeInfo) {
     }
 }
 
+static void setAlarmDisplay(void)
+{
+    if(isAlarmSet) {
+        // Display example alarm time of 5:30 am. 
+        setCharacterAtPosition(FIVE_CHAR, POS2);
+        setCharacterAtPosition(COLON_CHAR, COLON);
+        setCharacterAtPosition(THREE_CHAR, POS3);
+        setCharacterAtPosition(ZERO_CHAR, POS4);
+
+        setCharacterAtPosition(ALARM_CHAR_SET, ALARM_DOT);
+    }
+    else {
+        setCharacterAtPosition(DASH_CHAR, POS1);
+        setCharacterAtPosition(DASH_CHAR, POS2);
+        setCharacterAtPosition(COLON_CHAR, COLON);
+        setCharacterAtPosition(DASH_CHAR, POS3);
+        setCharacterAtPosition(DASH_CHAR, POS4);
+
+        setCharacterAtPosition(ALARM_CHAR_CLR, ALARM_DOT);
+    }
+}
+
+static void setDigitDisplay(uint8_t digit) {
+    // For testing purposes, we can set a single digit (e.g., '5') at POS1
+    digit = digit % 10; // Ensure the input is a single digit (0-9)
+    switch(digit) {
+        case 0:
+            setCharacterAtPosition(ZERO_CHAR, POS4);
+            break;
+        case 1:
+            setCharacterAtPosition(ONE_CHAR, POS4);
+            break;
+        case 2:
+            setCharacterAtPosition(TWO_CHAR, POS4);
+            break;
+        case 3:
+            setCharacterAtPosition(THREE_CHAR, POS4);
+            break;
+        case 4:
+            setCharacterAtPosition(FOUR_CHAR, POS4);
+            break;
+        case 5:
+            setCharacterAtPosition(FIVE_CHAR, POS4);
+            break;
+        case 6:
+            setCharacterAtPosition(SIX_CHAR, POS4);
+            break;
+        case 7:
+            setCharacterAtPosition(SEVEN_CHAR, POS4);
+            break;
+        case 8:
+            setCharacterAtPosition(EIGHT_CHAR, POS4);
+            break;
+        case 9:
+            setCharacterAtPosition(NINE_CHAR, POS4);
+            break;
+        default:
+            // If the input is not a valid digit, we can choose to clear the position or do nothing
+            // For this example, let's clear the position by setting it to a blank character (e.g., DASH)
+            setCharacterAtPosition(DASH_CHAR, POS4);
+            break;
+    }
+}
+
 int main(void) {
     pthread_t getInputThread;
-    int threadStatus = 0; 
+    int threadStatus = 0;
+    uint64_t stateTimer = 0; 
 
     // Create a thread to manage user input
     threadStatus = pthread_create(&getInputThread, NULL, input_thread, NULL);
@@ -167,16 +264,40 @@ int main(void) {
     // Initialize the tick counter
     initTick();
 
-    // Initialize the LED matrix
-    clearMatrix();    
-
     while(!isQuit) {
         // Get the current time
         getTime(&localTime);
 
+        // Initialize the LED matrix
+        clearMatrix();    
+
         switch(clockState) {
             case DISPLAY_TIME:
                 setTimeDisplay(&localTime);
+                if(isDisplayAlarm) {
+                    clockState = DISPLAY_ALARM_TIME;
+                    stateTimer = getTick(); // Reset the timer when we switch to alarm display
+                    isDisplayAlarm = false; // Reset the flag to display alarm time so that we only switch to alarm display once per button press.
+                }
+                else if (isDisplayDigit) {
+                    clockState = DISPLAY_DIGIT;
+                    stateTimer = getTick(); // Reset the timer when we switch to digit display
+                    isDisplayDigit = false; // Reset the flag to display digit so that we only switch
+                }  
+                break;
+            case DISPLAY_ALARM_TIME:
+                setAlarmDisplay();
+                // After 2 seconds of displaying the alarm time, switch back to displaying the current time
+                if(getTick() - stateTimer >= ALARM_DISPLAY_DURATION_MS) {
+                    clockState = DISPLAY_TIME;
+                }
+                break;
+            case DISPLAY_DIGIT:
+                setDigitDisplay(buttonCnt); // For testing purposes, we can display the digit '5
+                // After 2 seconds of displaying the digit, switch back to displaying the current time
+                if(getTick() - stateTimer >= DIGIT_DISPLAY_DURATION_MS) {
+                    clockState = DISPLAY_TIME;
+                }
                 break;
             default:
                 // Should never be here but force state to display clock
