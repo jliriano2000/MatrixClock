@@ -208,8 +208,7 @@ static void setCharAtPosition(character_t character, char_pos_t position)
             return;
     }
 
-    // Copy over the sprite
-    printf("Setting character %d at position %d (row=%d, col=%d)\n", character, position, target.row, target.col);
+    // Copy over the sprite for the character to the target position on the matrix
     for(uint8_t i = 0; i < SPRITE_HEIGHT; i++) {
         for(uint8_t j = 0; j < SPRITE_WIDTH; j++) {
             ledMatrix[target.row + i][target.col + j] = (*spritePtr)[i][j];
