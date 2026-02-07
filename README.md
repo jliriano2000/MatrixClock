@@ -21,3 +21,10 @@ To run the program, use the following command:
 This was tested and compiled on a MacBook Pro running macOS Sonoma. The program uses the ncurses library for handling keyboard input and display, so make sure to have it installed on your system.
 
 This has not been tested on Windows, but the code exists to compile and run on Windows as well. You may need to adjust the compilation command to link against the appropriate libraries for Windows (e.g., using MinGW or Visual Studio).
+
+## Unit Tests
+A simple unit test is compiled in the `unit_main.c` file, which tests the `getMatrix` function to ensure that it correctly generates the expected LED matrix output for given character inputs. The unit test defines expected LED matrix outputs for specific character combinations and compares them against the actual output from the `getMatrix` function. To compile the unit test, use the following command:
+```gcc unit_main.c ledMatrix.c -o unit_test.out ```
+
+To run the unit test, use the following command:
+```./unit_test.out```
