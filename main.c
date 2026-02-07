@@ -5,7 +5,11 @@
 *
 *@author julio.liriano (julio.liriano@gmail.com)
 *
-*@brief
+*@brief - Main entry point for the LED matrix clock application. Emulates a clock 
+*         with an alarm feature using a LED matrix display. The application runs in a loop,
+*         updating the display based on the current time and user input. User can set/clear
+*         the alarm and toggle between displaying the current time, alarm time, or a test digit.
+********************************************************************************
 
 
 /* Includes ------------------------------------------------------------------*/

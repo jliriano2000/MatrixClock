@@ -78,7 +78,7 @@ led_matrix_err_t setCharacterAtPosition(character_t character, char_pos_t positi
  * @param matrixOut - Output parameter to hold the current LED matrix frame. Must be a 2D array of size MATRIX_WIDTH x MATRIX_HEIGHT. 
  * @return led_matrix_err_t - Status of the operation.
  */
-led_matrix_err_t getMatrix(uint8_t matrixOut[MATRIX_WIDTH][MATRIX_HEIGHT]); 
+led_matrix_err_t getMatrix(uint8_t matrixOut[MATRIX_HEIGHT][MATRIX_WIDTH]); 
 
 /**
  * @brief Sends the current ledMatrix frame to the LED matrix hardware.

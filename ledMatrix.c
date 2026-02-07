@@ -277,7 +277,7 @@ void clearMatrix(void) {
     memset(ledMatrix, 0, sizeof(ledMatrix));
 }
 
-led_matrix_err_t getMatrix(uint8_t matrixOut[MATRIX_WIDTH][MATRIX_HEIGHT]) {
+led_matrix_err_t getMatrix(uint8_t matrixOut[MATRIX_HEIGHT][MATRIX_WIDTH]) {
 
     // Check for NULL pointer
     if(matrixOut == NULL) {
